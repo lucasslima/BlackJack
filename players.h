@@ -1,10 +1,10 @@
 /*
- * players.h
+ * players.h - Class definition for players objects
  *
- *  Created on: Jul 16, 2014
- *      Author: ryan
+ *  Created on: Jul 20, 2014
+ *  	Author: Ryan Walker
+ *      Email: r_walker@zoho.com
  */
-
 #ifndef PLAYERS_H_
 #define PLAYERS_H_
 #include <vector>

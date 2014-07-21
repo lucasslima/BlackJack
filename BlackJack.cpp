@@ -10,9 +10,11 @@
 #include "BlackJack.h"
 using namespace std;
 
-// function templates
+// function templates for console input
 int inputWager(int);
 char inputAction();
+
+// function templates for game play
 void deal(BlackJackDealer&, BlackJackPlayer&);
 void hit(BlackJackPlayer&, BlackJackDealer&);
 int handValue(BlackJackPlayer&);
@@ -41,6 +43,7 @@ std::map<std::string,int> create_map()
 }
 std::map<std::string,int> cardvalues = create_map();
 
+// main
 int main() {
 	// Initialize game
 	BlackJackDealer dealer = BlackJackDealer();
@@ -57,7 +60,7 @@ int main() {
 	cout << "Welcome to Black Jack!" << endl;
 	while(player.getChipCount()>0 and toupper(continue_play)=='Y'){
 		cout << "Round #" << round << ": "<< endl;
-		cout << "Place your wager (Blackjack pays 3:1 and all other wins pay 1:1). ";
+		cout << "Place your wager (Blackjack pays 3:1 and all other wins pay 1:1). " << endl;
 
 		// Get and process player's wager from console
 		int num = inputWager(player.getChipCount());
@@ -99,6 +102,10 @@ int main() {
 	return 0;
 }
 
+/*
+ * Input processing functions
+ */
+
 int inputWager(int nchips){
 	int num;
 	while(true){
@@ -131,6 +138,11 @@ char inputAction(){
 	}
 	return toupper(action);
 }
+
+
+/*
+ * Game play functions
+ */
 
 void deal(BlackJackDealer& dealer, BlackJackPlayer& player){
 	// clean up from old games
@@ -234,3 +246,6 @@ void autoplay(BlackJackDealer& dealer){
 			break;
 	}
 }
+
+
+

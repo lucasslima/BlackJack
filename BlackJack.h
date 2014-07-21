@@ -1,5 +1,5 @@
 /*
- * BlackJack.h
+ * BlackJack.h - Black jack game implementation.
  *
  *  Created on: Jul 20, 2014
  *  	Author: Ryan Walker

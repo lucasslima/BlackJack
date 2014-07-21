@@ -1,5 +1,9 @@
 /*
- * 	Class definition file for playing cards.
+ * cards.h - class definitions for player card objects.
+ *
+ *  Created on: Jul 20, 2014
+ *  	Author: Ryan Walker
+ *      Email: r_walker@zoho.com
  */
 
 #ifndef CARDS_H_
