@@ -220,7 +220,7 @@ void scoreRound(BlackJackPlayer& player, BlackJackDealer& dealer){
 				cout << "Dealer and player both have blackjack! Tie." << endl;
 			}
 			else {
-				cout << "Player has blackjack! Player wins "<< 2*wager << "dollars!" << endl;
+				cout << "Player has blackjack! Player wins "<< 2*wager << " dollars!" << endl;
 				player.gainChips(2*wager);
 			}
 		}
@@ -236,7 +236,8 @@ void scoreRound(BlackJackPlayer& player, BlackJackDealer& dealer){
 		player.loseChips(player.getWager());
 	}
 	else if (dscore>21){
-		std::cout << "Dealer busts and player wins with score " << pscore << ". Win: "<< wager << " dollars.";
+		std::cout << "Dealer busts and player wins with score " << pscore << ". Win: "<< wager
+				<< " dollars." << endl;
 		player.gainChips(player.getWager());
 	}
 	else if (pscore<dscore){
@@ -245,7 +246,7 @@ void scoreRound(BlackJackPlayer& player, BlackJackDealer& dealer){
 	}
 	else if (pscore>dscore){
 		std::cout << "Player wins with score " << pscore <<". Win "<< wager <<" dollars." <<endl;
-		player.loseChips(player.getWager());
+		player.gainChips(player.getWager());
 	}
 	else if (pscore == dscore)
 		std::cout << "Player and dealer tie with " << pscore << "." <<endl;

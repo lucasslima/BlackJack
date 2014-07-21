@@ -12,6 +12,8 @@
 #include <vector>
 #include <algorithm>
 #include <string>
+#include <stdlib.h>
+#include <time.h>
 
 // Suits class
 class Suit{
@@ -71,6 +73,7 @@ std::string Card::getStringValue(){
 // Pack holds standard 52 card deck.
 class Pack{
 	public:
+		Pack();
 		Card Draw();
 		void Shuffle();
 
@@ -80,6 +83,11 @@ class Pack{
 		std::string const suit_t[4] = {"H", "D", "C", "S"};
 		std::vector<Card> cards;
 };
+
+Pack::Pack(){
+	std::srand(time(NULL));
+}
+
 
 // draw a card from the pack
 Card Pack::Draw(){
