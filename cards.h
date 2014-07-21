@@ -12,61 +12,59 @@
 #include <vector>
 #include <algorithm>
 #include <string>
-using namespace std;
 
 // Suits class
 class Suit{
 	public:
-		string getSuit();
-		void setSuit(string);
+		std::string getSuit();
+		void setSuit(std::string);
 	private:
-		string suit;
+		std::string suit;
 };
 
-string Suit::getSuit(){
+std::string Suit::getSuit(){
 	return Suit::suit;
 }
 
-void Suit::setSuit(string s){
+void Suit::setSuit(std::string s){
 	Suit::suit=s;
 }
-
 
 // Face values class
 class Face{
 	public:
-		string getFace();
-		void setFace(string);
+		std::string getFace();
+		void setFace(std::string);
 	private:
-		string face;
+		std::string face;
 };
 
-string Face::getFace(){
+std::string Face::getFace(){
 	return face;
 }
 
-void Face::setFace(string f){
+void Face::setFace(std::string f){
 	Face::face=f;
 }
 
 // Card object, holds suit and value of card
 class Card{
 	public:
-		Card(string, string);
-		string getStringValue();
+		Card(std::string, std::string);
+		std::string getStringValue();
 		Suit suit;
 		Face face;
 };
 
 // constructor
-Card::Card(string s, string f){
+Card::Card(std::string s, std::string f){
 	Card::suit.setSuit(s);
 	Card::face.setFace(f);
 }
 
 // string value of card
-string Card::getStringValue(){
-	string value = suit.getSuit() + face.getFace();
+std::string Card::getStringValue(){
+	std::string value = suit.getSuit() + face.getFace();
 	return(value);
 };
 
@@ -78,8 +76,8 @@ class Pack{
 
 	private:
 		// card data specification
-		string const face_t[13] = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
-		string const suit_t[4] = {"H", "D", "C", "S"};
+		std::string const face_t[13] = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
+		std::string const suit_t[4] = {"H", "D", "C", "S"};
 		std::vector<Card> cards;
 };
 

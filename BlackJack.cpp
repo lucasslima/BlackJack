@@ -58,27 +58,31 @@ int main() {
 
 	// Game play
 	cout << "Welcome to Black Jack!" << endl;
-	while(player.getChipCount()>0 and toupper(continue_play)=='Y'){
+	while(player.getChipCount()>0 and continue_play=='Y'){
 		cout << "Round #" << round << ": "<< endl;
 		cout << "Place your wager (Blackjack pays 3:1 and all other wins pay 1:1). " << endl;
 
 		// Get and process player's wager from console
 		int num = inputWager(player.getChipCount());
 		player.setWager(num);
-
+		cout << "########################################" << endl;
 		// Deal game
 		deal(dealer, player);
 
 		// Get player's requested action from console
 		char action;
+		int turn =1;
 		while(true){
+			cout << "Turn #" << turn << endl;
 			cout << "Dealer's hand: "<< dealer.printPublicHand() << endl;
-			cout << "Player's hand: "<< player.printPrivateHand() << endl;
+			cout << "Player's hand: "<< player.printPrivateHand() <<"\t\tPlayer score: "
+					<< handValue(player) << endl <<endl;
 			action = inputAction();
 			if (action == 'H')
 				hit(player, dealer);
 			if (action == 'S' or handValue(player)>21)
 				break;
+			turn++;
 		}
 
 		// Dealer's turn
@@ -90,15 +94,18 @@ int main() {
 
 		// Round complete.
 		if (player.getChipCount()>0){
-			cout << "Round complete.  If you'd like to play again, type 'Y'; "
-					"type any other character to quit." << endl;
+			cout << "You now have " << player.getChipCount() << " chips. ";
+			cout << "If you'd like to play again, type 'Y' or any other character to quit." << endl;
 			cin >> continue_play;
+			continue_play = char(toupper(continue_play));
+			round +=1;
 		}
 		else {
-			cout << "You don't have any chips left to wager.  Game over." << endl;
+			cout << "You don't have any chips left to wager. " << endl;
 			continue_play = 'N';
 		}
 	}
+	cout << "Game over.  Goodbye." << endl;
 	return 0;
 }
 
@@ -113,11 +120,12 @@ int inputWager(int nchips){
 		cout << "Enter a bet between 1 and " << nchips << ": " << endl;
 
 		// get input from console and validate
-		getline(std::cin, input);
+		cin>> input;
 		stringstream s(input);
 		   if (s >> num and num>=1 and num<=nchips)
 		     break;
 		   else
+			   cout << input << endl;
 			   cout << "Invalid input. Please try again" << endl;
 	}
 	return num;
@@ -130,13 +138,14 @@ char inputAction(){
 		cout << "Enter an action (H = 'Hit' , S = 'Stop'): ";
 
 		// get input from console and validate
-		cin.get(action);
-		if (toupper(action)=='H' or toupper(action)=='S')
+		cin >> action;
+		action = char(toupper(action));
+		if (action=='H' or action=='S')
 			break;
 		else
 			cout << "Invalid input. Please try again." << endl;
 	}
-	return toupper(action);
+	return action;
 }
 
 
@@ -158,10 +167,12 @@ void deal(BlackJackDealer& dealer, BlackJackPlayer& player){
 
 }
 
+// dealer gives hit to player
 void hit(BlackJackPlayer& player, BlackJackDealer& dealer){
 	player.Hand.push_back(dealer.giveCard());
 }
 
+// calculate the current value of a players hand
 int handValue(BlackJackPlayer& player){
 	int min_score = 0;
 	int max_score = 0;
@@ -198,8 +209,10 @@ void scoreRound(BlackJackPlayer& player, BlackJackDealer& dealer){
 	int wager = player.getWager();
 
 	cout << "########################################" << endl;
-	cout << "Dealer final hand: " << dealer.printPrivateHand() << endl;
-	cout << "Player final hand: " << player.printPrivateHand() << endl;
+	cout << "Dealer final score: " << handValue(dealer)
+			<<"\t\t Hand: "<< dealer.printPrivateHand() << endl;
+	cout << "Player final score: " << handValue(player)
+			<<"\t\t Hand: "<< player.printPrivateHand() << endl;
 
 	if (pscore==21){
 		if (pcards==2){
@@ -228,6 +241,10 @@ void scoreRound(BlackJackPlayer& player, BlackJackDealer& dealer){
 	}
 	else if (pscore<dscore){
 		std::cout << "Player loses with score " << pscore <<". Lose "<< wager <<" dollars." <<endl;
+		player.loseChips(player.getWager());
+	}
+	else if (pscore>dscore){
+		std::cout << "Player wins with score " << pscore <<". Win "<< wager <<" dollars." <<endl;
 		player.loseChips(player.getWager());
 	}
 	else if (pscore == dscore)
