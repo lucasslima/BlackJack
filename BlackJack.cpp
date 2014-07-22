@@ -60,7 +60,7 @@ int main() {
 	cout << "Welcome to Black Jack!" << endl;
 	while(player.getChipCount()>0 and continue_play=='Y'){
 		cout << "Round #" << round << ": "<< endl;
-		cout << "Place your wager (Blackjack pays 3:1 and all other wins pay 1:1). " << endl;
+		cout << "Place your wager (Blackjack pays 2:1 and all other wins pay 1:1). " << endl;
 
 		// Get and process player's wager from console
 		int num = inputWager(player.getChipCount());
@@ -224,29 +224,31 @@ void scoreRound(BlackJackPlayer& player, BlackJackDealer& dealer){
 				player.gainChips(2*wager);
 			}
 		}
-		else {
-			if(dscore==21 and dcards==2){
+		else if (dscore==21 and dcards==2){
 				cout << "Dealer has blackjack.  Player loses" << endl;
-				player.loseChips(player.getWager());
+				player.loseChips(wager);
 			}
+		else {
+			cout << "Player wins "<< wager << " dollars!"<< endl;
+			player.gainChips(wager);
 		}
 	}
 	else if (pscore>21){
 		std::cout << "Player busts with score " << pscore <<". Lose "<< wager <<" dollars." <<endl;
-		player.loseChips(player.getWager());
+		player.loseChips(wager);
 	}
 	else if (dscore>21){
 		std::cout << "Dealer busts and player wins with score " << pscore << ". Win: "<< wager
 				<< " dollars." << endl;
-		player.gainChips(player.getWager());
+		player.gainChips(wager);
 	}
 	else if (pscore<dscore){
 		std::cout << "Player loses with score " << pscore <<". Lose "<< wager <<" dollars." <<endl;
-		player.loseChips(player.getWager());
+		player.loseChips(wager);
 	}
 	else if (pscore>dscore){
 		std::cout << "Player wins with score " << pscore <<". Win "<< wager <<" dollars." <<endl;
-		player.gainChips(player.getWager());
+		player.gainChips(wager);
 	}
 	else if (pscore == dscore)
 		std::cout << "Player and dealer tie with " << pscore << "." <<endl;
