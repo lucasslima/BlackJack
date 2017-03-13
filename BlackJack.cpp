@@ -4,9 +4,8 @@
 // Email       : r_walker@zoho.com
 //============================================================================
 #include <iostream>
-#include <string>
 #include <sstream>
-#include <map>
+#include <unordered_map>
 #include "BlackJack.h"
 using namespace std;
 
@@ -24,9 +23,9 @@ void autoplay(BlackJackDealer&);
 // Define face values of cards based on standard black jack rules using
 // a static map. Note, we don't code a value for "A" because
 // it can be either 2 or 11 in Blackjack.
-std::map<std::string,int> create_map()
+std::unordered_map<std::string,int> create_map()
 {
-	std::map<std::string, int> cardvalues;
+	std::unordered_map<std::string, int> cardvalues;
 	cardvalues["2"] = 2;
 	cardvalues["3"] = 3;
 	cardvalues["4"] = 4;
@@ -41,7 +40,7 @@ std::map<std::string,int> create_map()
 	cardvalues["K"] = 10;
   return cardvalues;
 }
-std::map<std::string,int> cardvalues = create_map();
+std::unordered_map<std::string,int> cardvalues = create_map();
 
 // main
 int main() {
@@ -180,7 +179,7 @@ int handValue(BlackJackPlayer& player){
 	std::string suit;
 	std::string face;
 
-	for(int i=0; i<int(player.Hand.size()); i++){
+	for(int i=0; i<player.Hand.size(); i++){
 		face = (player.Hand.at(i)).face.getFace();
 		suit = (player.Hand.at(i)).suit.getSuit();
 
