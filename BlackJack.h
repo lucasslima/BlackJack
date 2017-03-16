@@ -14,6 +14,18 @@
 #include "players.h"
 using namespace std;
 
+enum ResponseCode{
+	NOT_FINISHED=0,
+    PLAYER_WINS,
+    PLAYER_BURSTS,
+	PLAYER_NATURAL_BLACKJACK,
+    PLAYER_BLACKJACK,
+	DEALER_WINS,
+	DEALER_BURSTS,
+	DEALER_BLACKJACK,
+	TIE,
+	BLACKJACK_TIE
+};
 // BlackJack player extends player
 class BlackJackPlayer : virtual public Player {
 	public:
