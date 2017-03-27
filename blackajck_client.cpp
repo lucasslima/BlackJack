@@ -7,8 +7,17 @@
 using boost::lexical_cast;
 using boost::asio::ip::tcp;
 using namespace std;
+using namespace boost;
 
+std::string readFromSocketDelim(asio::ip::tcp::socket& sock){
+    asio::streambuf buf;
+    asio::read_until(sock, buf, '\n');
+    std::string message;
 
+    std::istream input_stream(&buf);
+    std::getline(input_stream, message);
+    return message;
+}
 char inputAction();
 int inputWager(int);
 int main(int argc, char* argv[]) {
@@ -31,17 +40,18 @@ int main(int argc, char* argv[]) {
         //Now we need to talk to the server
         // We use a boost::array to hold the received data.
         boost::array<char, 128> initialChipsBuffer;
+        asio::streambuf readbuf;
         boost::system::error_code error;
 
         // The boost::asio::buffer() function automatically determines
         // the size of the array to help prevent buffer overruns.
         //Recieve initial chips from the server
-        size_t len = socket.receive(boost::asio::buffer(initialChipsBuffer));
+        size_t len;
         if (error == boost::asio::error::eof){
             cout << "Connection cleanly closed" << endl;
             exit(1);
         }
-        int playerChips = lexical_cast<int>(initialChipsBuffer.data(), len);
+        int playerChips = lexical_cast<int>(readFromSocketDelim(socket));
         cout << "Recieved chips: " << playerChips << endl;
         int round;
         char continue_play = 'Y';
