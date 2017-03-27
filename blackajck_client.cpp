@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
         // The boost::asio::buffer() function automatically determines
         // the size of the array to help prevent buffer overruns.
         //Recieve initial chips from the server
-        size_t len = socket.read_some(boost::asio::buffer(initialChipsBuffer), error);
+        size_t len = socket.receive(boost::asio::buffer(initialChipsBuffer));
         if (error == boost::asio::error::eof){
             cout << "Connection cleanly closed" << endl;
             exit(1);
@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
         cout << "Welcome to Black Jack!" << endl;
         while (playerChips > 0 and continue_play == 'Y') {
             boost::array<char, 128> roundBuffer;
-            len = socket.read_some(boost::asio::buffer(roundBuffer), error);
+            len = socket.receive(boost::asio::buffer(roundBuffer));
             round = lexical_cast<int>(roundBuffer.data(), len);
             cout << "Round #" << round << ": " << endl;
             cout << "Place your wager (Blackjack pays 2:1 and all other wins pay 1:1). " << endl;

@@ -44,8 +44,10 @@ int main()
             boost::system::error_code error;
 			size_t len;
 			boost::array<char, 128> buf;
-			boost::asio::write(socket, boost::asio::buffer(std::to_string(player.getChipCount() ) ), ignored_error);
-			boost::asio::write(socket, boost::asio::buffer(std::to_string(round ) ), ignored_error);
+			socket.send(boost::asio::buffer( std::to_string(player.getChipCount() ) ) );
+            socket.send(boost::asio::buffer( std::to_string(round ) ) );
+//			boost::asio::write(socket, boost::asio::buffer(std::to_string(player.getChipCount() ) ), ignored_error);
+//			boost::asio::write(socket, boost::asio::buffer(std::to_string(round ) ), ignored_error);
 			len = socket.read_some(boost::asio::buffer(buf), error);
 
             // writing the message for current time
