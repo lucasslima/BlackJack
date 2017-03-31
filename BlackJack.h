@@ -12,7 +12,12 @@
 #include <string>
 #include <sstream>
 #include "players.h"
+#include <boost/asio.hpp>
+
 using namespace std;
+using namespace boost;
+
+const string DELIMITER = "\n";
 
 enum ResponseCode{
 	NOT_FINISHED=0,
@@ -26,6 +31,15 @@ enum ResponseCode{
 	TIE,
 	BLACKJACK_TIE
 };
+std::string readFromSocketDelim(asio::ip::tcp::socket& sock){
+    asio::streambuf buf;
+    asio::read_until(sock, buf, '\n');
+    std::string message;
+
+    std::istream input_stream(&buf);
+    std::getline(input_stream, message);
+    return message;
+}
 // BlackJack player extends player
 class BlackJackPlayer : virtual public Player {
 	public:

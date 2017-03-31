@@ -8,67 +8,15 @@
 #include <boost/asio.hpp>
 #include <unordered_map>
 #include <boost/array.hpp>
+#include <boost/lexical_cast.hpp>
 #include "BlackJack.h"
+#include <boost/algorithm/string.hpp>
+#include "players.h"
+
 using namespace std;
 
 using boost::asio::ip::tcp;
 
-
-int main()
-{
-    try
-	{
-        BlackJackDealer dealer = BlackJackDealer();
-        BlackJackPlayer player = BlackJackPlayer();
-
-        // Player begins with 100 chips
-        player.setChips(500);
-
-        // control flow variables
-//        char continuePlaying = 'Y';
-        bool continuePlaying = true;
-        int round = 1;
-		// Any program that uses asio need to have at least one io_service object
-		boost::asio::io_service io_service;
-
-		// acceptor object needs to be created to listen for new connections
-		tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), 7000));
-        boost::system::error_code ignored_error;
-        // creates a socket
-        tcp::socket socket(io_service);
-
-        // wait and listen
-		cout << "Waiting for connection. " << endl;
-        acceptor.accept(socket);
-        while (continuePlaying)
-        {
-            boost::system::error_code error;
-            size_t bytes_written = 0;
-			size_t len;
-			boost::array<char, 128> buf;
-//			socket.send(boost::asio::buffer( std::to_string(player.getChipCount() ) ) );
-//            socket.send(boost::asio::buffer( std::to_string(round ) ) );
-			boost::asio::write(socket, boost::asio::buffer(std::to_string(player.getChipCount() ) + "\n" ), ignored_error);
-			boost::asio::write(socket, boost::asio::buffer(std::to_string(round ) + "\n" ), ignored_error);
-			len = socket.read_some(boost::asio::buffer(buf), error);
-
-            // writing the message for current time
-
-//			size_t len = socket.read_some(boost::asio::buffer(buf), error);
-
-        }
-    }
-    catch (std::exception& e)
-    {
-        std::cerr << e.what() << std::endl;
-    }
-
-    return 0;
-}
-
-// function templates for console input
-int inputWager(int);
-char inputAction();
 
 // function templates for game play
 void deal(BlackJackDealer&, BlackJackPlayer&);
@@ -98,6 +46,79 @@ std::unordered_map<std::string,int> create_map()
   return cardvalues;
 }
 std::unordered_map<std::string,int> cardvalues = create_map();
+
+int main()
+{
+    try
+	{
+        BlackJackDealer dealer = BlackJackDealer();
+        BlackJackPlayer player = BlackJackPlayer();
+
+        // Player begins with 100 chips
+        player.setChips(500);
+
+        // control flow variables
+//        char continuePlaying = 'Y';
+        bool continuePlaying = true;
+        int round = 1;
+		// Any program that uses asio need to have at least one io_service object
+		boost::asio::io_service io_service;
+
+		// acceptor object needs to be created to listen for new connections
+		tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), 7000));
+        boost::system::error_code ignored_error;
+        // creates a socket
+        tcp::socket socket(io_service);
+
+        // wait and listen
+		cout << "Waiting for connection. " << endl;
+        acceptor.accept(socket);
+        while (continuePlaying)
+        {
+//			socket.send(boost::asio::buffer( std::to_string(player.getChipCount() ) ) );
+//            socket.send(boost::asio::buffer( std::to_string(round ) ) );
+			boost::asio::write(socket, boost::asio::buffer(std::to_string(player.getChipCount() ) + DELIMITER ), ignored_error);
+			int wager = lexical_cast<int>(readFromSocketDelim(socket));
+			cout << "Wager received: " << wager << endl;
+            player.setWager(wager);
+			deal(dealer, player);
+            int turn = 1;
+			while(true){
+                stringstream hands;
+                string action;
+                hands << player.printPrivateHand(); hands << "-"; hands << dealer.printPublicHand(); hands << "-"; hands << handValue(player); hands << DELIMITER;
+                cout << "Hands message: " << hands.str() << endl;
+                boost::asio::write(socket, boost::asio::buffer(hands.str() ), ignored_error);
+				action = readFromSocketDelim(socket);
+                cout << "Action received: " << action << endl;
+                if (action ==  "H")
+                    hit(player, dealer);
+                if (action == "S" or handValue(player)>21)
+                    break;
+                turn++;
+                boost::asio::write(socket, boost::asio::buffer(std::to_string(ResponseCode::NOT_FINISHED) + DELIMITER ), ignored_error);
+            }
+			// Dealer's turn
+            if(handValue(player)<=21)
+                autoplay(dealer);
+
+            // Score round
+            ResponseCode result = scoreRound(player, dealer);
+            boost::asio::write(socket, boost::asio::buffer(std::to_string(result) + DELIMITER ), ignored_error);
+
+            stringstream finalresult;
+            finalresult << player.printPrivateHand(); finalresult << "-"; finalresult << dealer.printPrivateHand();
+            finalresult  << "-"; finalresult << handValue(player); finalresult << handValue(dealer); finalresult << DELIMITER;
+        }
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
+
+    return 0;
+}
+
 
 // main
 //int main() {
@@ -260,23 +281,24 @@ ResponseCode scoreRound(BlackJackPlayer& player, BlackJackDealer& dealer){
 		if (pcards==2){
 			if(dscore==21 and dcards==2){
 				cout << "Dealer and player both have blackjack! Tie." << endl;
-				finalResult =  TIE;
+				finalResult =  BLACKJACK_TIE;
 			}
 			else {
 				cout << "Player has blackjack! Player wins "<< 2*wager << " dollars!" << endl;
 				player.gainChips(2*wager);
-				finalResult = PLAYER_WINS;
+				finalResult = PLAYER_NATURAL_BLACKJACK;
 			}
 		}
 		else if (dscore==21 and dcards==2){
 			cout << "Dealer has blackjack.  Player loses" << endl;
 			player.loseChips(wager);
-			finalResult = DEALER_WINS;
+			finalResult = DEALER_BLACKJACK;
 		}
 		else {
 			cout << "Player wins "<< wager << " dollars!"<< endl;
 			player.gainChips(wager);
-            finalResult = PLAYER_WINS; }
+            finalResult = PLAYER_BLACKJACK;
+        }
 	}
 	else if (pscore>21){
 		std::cout << "Player busts with score " << pscore <<". Lose "<< wager <<" dollars." <<endl;

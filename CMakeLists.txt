@@ -16,6 +16,7 @@ set(SERVER_FILES
 set(CLIENT_FILES
         blackajck_client.cpp
         )
+
 add_executable(BlackJack ${SOURCE_FILES})
 add_executable(server ${SERVER_FILES})
 TARGET_LINK_LIBRARIES(server -lboost_system)
