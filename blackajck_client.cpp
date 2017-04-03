@@ -2,6 +2,7 @@
 #include <boost/array.hpp>
 #include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 #include "BlackJack.h"
 
 using boost::lexical_cast;
@@ -61,6 +62,7 @@ int main(int argc, char* argv[]) {
 
             boost::asio::write(socket, boost::asio::buffer(std::to_string(num) + DELIMITER ), ignored_error);
             // Get player's requested action from console
+
             //Playing loop
             
             ResponseCode roundResult = NOT_FINISHED;
@@ -69,20 +71,12 @@ int main(int argc, char* argv[]) {
                 turn++;
                 char action;
 
-
-                std::vector<std::string> gameInfo;
                 string hands = readFromSocketDelim(socket);
-                unsigned long pos = 0;
-                while ((pos = hands.find('-')) != std::string::npos) {
-                    gameInfo.push_back(hands.substr(0, pos));
-                    hands.erase(0, pos + 1);
-                }
+                std::vector<std::string> gameInfo;
+                boost::split(gameInfo,hands, boost::is_any_of("-"));
                 string playerHand = gameInfo[0];
                 string dealerHand = gameInfo[1];
-
-                cout << "Dealer's hand: " << dealerHand << endl;
-                cout << "Player's hand: " << playerHand << endl;
-                int handValue = lexical_cast<int>(hands) ;
+                int handValue = lexical_cast<int>(gameInfo[2]) ;
                 cout << "Turn #" << turn << endl;
                 cout << "Dealer's hand: " << dealerHand << endl;
                 cout << "Player's hand: " << playerHand << "\t\t Player score: "
@@ -94,15 +88,12 @@ int main(int argc, char* argv[]) {
             }
             std::vector<std::string> finalresult;
             string result = readFromSocketDelim(socket);
-            unsigned long pos = 0;
-            while ((pos = result.find('-')) != std::string::npos) {
-                finalresult.push_back(result.substr(0, pos));
-                result.erase(0, pos + 1);
-            }
+            boost::split(finalresult,result, boost::is_any_of("-"));
             string playerHand = finalresult[0];
             string dealerHand = finalresult[1];
             int playerScore = lexical_cast<int>(finalresult[2]);
-            int dealerScore = lexical_cast<int>(result);
+            int dealerScore = lexical_cast<int>(finalresult[3]);
+            playerChips = lexical_cast<int>(finalresult[4]);
             cout << "########################################" << endl;
             cout << "Dealer final score: " << dealerScore << '\t' << "Hand: " << dealerHand<< endl;
             cout << "Player final score: " << playerScore << '\t' << "Hand: " << dealerHand<< endl;

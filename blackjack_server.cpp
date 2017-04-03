@@ -11,6 +11,8 @@
 #include <boost/lexical_cast.hpp>
 #include "BlackJack.h"
 #include <boost/algorithm/string.hpp>
+#include <chrono>
+#include <thread>
 #include "players.h"
 
 using namespace std;
@@ -60,7 +62,6 @@ int main()
         // control flow variables
 //        char continuePlaying = 'Y';
         bool continuePlaying = true;
-        int round = 1;
 		// Any program that uses asio need to have at least one io_service object
 		boost::asio::io_service io_service;
 
@@ -73,11 +74,9 @@ int main()
         // wait and listen
 		cout << "Waiting for connection. " << endl;
         acceptor.accept(socket);
+        boost::asio::write(socket, boost::asio::buffer(std::to_string(player.getChipCount() ) + DELIMITER ), ignored_error);
         while (continuePlaying)
         {
-//			socket.send(boost::asio::buffer( std::to_string(player.getChipCount() ) ) );
-//            socket.send(boost::asio::buffer( std::to_string(round ) ) );
-			boost::asio::write(socket, boost::asio::buffer(std::to_string(player.getChipCount() ) + DELIMITER ), ignored_error);
 			int wager = lexical_cast<int>(readFromSocketDelim(socket));
 			cout << "Wager received: " << wager << endl;
             player.setWager(wager);
@@ -99,6 +98,8 @@ int main()
                 boost::asio::write(socket, boost::asio::buffer(std::to_string(ResponseCode::NOT_FINISHED) + DELIMITER ), ignored_error);
             }
 			// Dealer's turn
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
             if(handValue(player)<=21)
                 autoplay(dealer);
 
@@ -108,7 +109,10 @@ int main()
 
             stringstream finalresult;
             finalresult << player.printPrivateHand(); finalresult << "-"; finalresult << dealer.printPrivateHand();
-            finalresult  << "-"; finalresult << handValue(player); finalresult << handValue(dealer); finalresult << DELIMITER;
+            finalresult  << "-"; finalresult << handValue(player); finalresult  << "-"; finalresult << handValue(dealer);
+			finalresult << "-" << player.getChipCount(); finalresult << DELIMITER;
+			cout << "Final result string: " << finalresult.str() << endl;
+            boost::asio::write(socket, boost::asio::buffer(finalresult.str() + DELIMITER ), ignored_error);
         }
     }
     catch (std::exception& e)
@@ -118,73 +122,6 @@ int main()
 
     return 0;
 }
-
-
-// main
-//int main() {
-//	// Initialize game
-//	BlackJackDealer dealer = BlackJackDealer();
-//	BlackJackPlayer player = BlackJackPlayer();
-//
-//	// Player begins with 100 chips
-//	player.setChips(100);
-//
-//	// control flow variables
-//	char continue_play = 'Y';
-//	int round = 1;
-//
-//	// Game play
-//	cout << "Welcome to Black Jack!" << endl;
-//	while(player.getChipCount()>0 and continue_play=='Y'){
-//		cout << "Round #" << round << ": "<< endl;
-//		cout << "Place your wager (Blackjack pays 2:1 and all other wins pay 1:1). " << endl;
-//
-//		// Get and process player's wager from console
-//		int num = inputWager(player.getChipCount());
-//		player.setWager(num);
-//		cout << "########################################" << endl;
-//		// Deal game
-//		deal(dealer, player);
-//
-//		// Get player's requested action from console
-//		char action;
-//		int turn =1;
-//		while(true){
-//			cout << "Turn #" << turn << endl;
-//			cout << "Dealer's hand: "<< dealer.printPublicHand() << endl;
-//			cout << "Player's hand: "<< player.printPrivateHand() <<"\t\tPlayer score: "
-//					<< handValue(player) << endl <<endl;
-//			action = inputAction();
-//			if (action == 'H')
-//				hit(player, dealer);
-//			if (action == 'S' or handValue(player)>21)
-//				break;
-//			turn++;
-//		}
-//
-//		// Dealer's turn
-//		if(handValue(player)<=21)
-//			autoplay(dealer);
-//
-//		// Score round
-//		scoreRound(player, dealer);
-//
-//		// Round complete.
-//		if (player.getChipCount()>0){
-//			cout << "You now have " << player.getChipCount() << " chips. ";
-//			cout << "If you'd like to play again, type 'Y' or any other character to quit." << endl;
-//			cin >> continue_play;
-//			continue_play = char(toupper(continue_play));
-//			round +=1;
-//		}
-//		else {
-//			cout << "You don't have any chips left to wager. " << endl;
-//			continue_play = 'N';
-//		}
-//	}
-//	cout << "Game over.  Goodbye." << endl;
-//	return 0;
-//}
 
 /*
  * Input processing functions
